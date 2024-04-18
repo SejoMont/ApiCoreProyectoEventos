@@ -32,7 +32,7 @@ namespace MvcCoreProyectoSejo.Controllers
             _artistsRepo = artistsRepo;
         }
 
-        [HttpGet("GetEventos")]
+        [HttpGet("[action]")]
         public async Task<IActionResult> GetEventos([FromQuery] FiltroEvento filtro, int page = 1, int pageSize = 8)
         {
             var eventos = await _repo.BuscarEventosPorFiltros(filtro);
