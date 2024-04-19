@@ -23,23 +23,11 @@ namespace MvcCoreProyectoSejo.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetEventos([FromQuery] FiltroEvento filtro, int page = 1, int pageSize = 8)
+        public async Task<IActionResult> GetEventos()
         {
-            var eventos = await repo.BuscarEventosPorFiltros(filtro);
-            var paginatedData = eventos.Skip((page - 1) * pageSize).Take(pageSize).ToList();
-            var totalItems = eventos.Count;
-            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var eventos = await repo.GetAllEventosAsync();
 
-            var result = new
-            {
-                Data = paginatedData,
-                TotalItems = totalItems,
-                TotalPages = totalPages,
-                CurrentPage = page,
-                PageSize = pageSize
-            };
-
-            return Ok(result);
+            return Ok(eventos);
         }
 
         [HttpGet("GetEvento/{id}")]

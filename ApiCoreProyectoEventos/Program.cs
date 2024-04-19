@@ -13,11 +13,7 @@ builder.Services.AddTransient<HelperCryptography>();
 builder.Services.AddTransient<HelperMails>();
 builder.Services.AddTransient<HelperTools>();
 
-builder.Services.AddTransient<EntradasRepository>();
-builder.Services.AddTransient<ArtistasEventoRepository>();
 builder.Services.AddTransient<EventosRepository>();
-builder.Services.AddTransient<UsuariosRepository>();
-builder.Services.AddTransient<ProvinciasRepository>();
 
 
 HelperActionServicesOAuth helper =

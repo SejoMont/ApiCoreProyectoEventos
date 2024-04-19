@@ -369,7 +369,8 @@ namespace ApiCoreProyectoEventos.Repository
                 return false;
             }
         }
-        public Usuario GetUser(string correo)
+
+        public async Task<Usuario> GetUserAsync(string correo)
         {
             var usuario = (from u in context.Usuarios
                            where u.Correo == correo

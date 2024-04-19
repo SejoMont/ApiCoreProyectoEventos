@@ -24,19 +24,29 @@ namespace MvcCoreProyectoSejo.Controllers
             this.helper = helper;
         }
 
+        [HttpGet("GetUser/{correo}")]
+        public async Task<ActionResult<Usuario>> GetUser(string correo)
+        {
+            Usuario user = await this.repo.GetUserAsync(correo);
+            if (user == null)
+                return NotFound("Usuario no encontrado");
+            return Ok(user);
+        }
+
+
         [HttpGet("Details/{iduser}")]
         public async Task<ActionResult<UsuarioDetalles>> Details(int iduser)
         {
-            UsuarioDetalles usuarioDetalles = await repo.GetUsuarioDetalles(iduser);
+            UsuarioDetalles usuarioDetalles = await this.repo.GetUsuarioDetalles(iduser);
             if (usuarioDetalles == null)
                 return NotFound("Usuario no encontrado");
             return Ok(usuarioDetalles);
         }
 
         [HttpPost("Login")]
-        public async Task<ActionResult> Login(string correo, string password)
+        public async Task<ActionResult> Login(Login login)
         {
-            bool loginSuccess = await repo.LogInUserAsync(correo, password);
+            bool loginSuccess = await this.repo.LogInUserAsync(login.Correo, login.Password);
             if (loginSuccess)
             {
                 SigningCredentials credentials =
@@ -45,7 +55,7 @@ namespace MvcCoreProyectoSejo.Controllers
                         , SecurityAlgorithms.HmacSha256);
 
 
-                Usuario user = repo.GetUser(correo);
+                Usuario user = await this.repo.GetUserAsync(login.Correo);
 
                 string jsonUser =
                     JsonConvert.SerializeObject(user);
@@ -79,19 +89,19 @@ namespace MvcCoreProyectoSejo.Controllers
         }
 
         [HttpPost("Registro")]
-        public async Task<ActionResult> Registro(string nombre, string correo, string password, string confirmPassword)
+        public async Task<ActionResult> Registro(Registro registro)
         {
-            if (repo.EmailExists(correo))
+            if (repo.EmailExists(registro.Correo))
             {
                 return BadRequest("El correo electrónico ya está en uso");
             }
 
-            if (password != confirmPassword)
+            if (registro.Password != registro.ConfirmPassword)
             {
                 return BadRequest("Las contraseñas no coinciden");
             }
 
-            Usuario user = await repo.RegisterUserAsync(nombre, correo, password, 1);
+            Usuario user = await repo.RegisterUserAsync(registro.Nombre, registro.Correo, registro.Password, 1);
 
             if (user != null)
             {
