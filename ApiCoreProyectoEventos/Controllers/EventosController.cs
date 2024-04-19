@@ -1,7 +1,9 @@
 ﻿using ApiCoreProyectoEventos.Models;
 using ApiCoreProyectoEventos.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,29 +15,17 @@ namespace MvcCoreProyectoSejo.Controllers
     [ApiController]
     public class EventosController : ControllerBase
     {
-        private EventosRepository _repo;
-        private UsuariosRepository _userRepo;
-        private ProvinciasRepository _provinciasRepo;
-        private EntradasRepository _entradasRepo;
-        private ArtistasEventoRepository _artistsRepo;
+        private EventosRepository repo;
 
-        public EventosController(EventosRepository repo,
-            UsuariosRepository userRepo,
-            ProvinciasRepository provinciasRepo,
-            EntradasRepository entradasRepo,
-            ArtistasEventoRepository artistsRepo)
+        public EventosController(EventosRepository repo)
         {
-            _repo = repo;
-            _userRepo = userRepo;
-            _provinciasRepo = provinciasRepo;
-            _entradasRepo = entradasRepo;
-            _artistsRepo = artistsRepo;
+            this.repo = repo;
         }
 
         [HttpGet("[action]")]
         public async Task<IActionResult> GetEventos([FromQuery] FiltroEvento filtro, int page = 1, int pageSize = 8)
         {
-            var eventos = await _repo.BuscarEventosPorFiltros(filtro);
+            var eventos = await repo.BuscarEventosPorFiltros(filtro);
             var paginatedData = eventos.Skip((page - 1) * pageSize).Take(pageSize).ToList();
             var totalItems = eventos.Count;
             var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
@@ -55,7 +45,7 @@ namespace MvcCoreProyectoSejo.Controllers
         [HttpGet("GetEvento/{id}")]
         public async Task<IActionResult> GetEvento(int id)
         {
-            var evento = await _repo.GetDetallesEventoAsync(id);
+            var evento = await repo.GetDetallesEventoAsync(id);
             if (evento == null)
                 return NotFound();
 
@@ -71,7 +61,7 @@ namespace MvcCoreProyectoSejo.Controllers
                 {
                     var filePath = await SaveFile(imagen);
                     evento.Imagen = filePath;
-                    await _repo.CrearEventoAsync(evento);
+                    await repo.CrearEventoAsync(evento);
                     return CreatedAtAction(nameof(GetEvento), new { id = evento.EventoID }, evento);
                 }
                 else
@@ -88,7 +78,8 @@ namespace MvcCoreProyectoSejo.Controllers
         [HttpPost("AddComentario")]
         public async Task<IActionResult> AddComentario([FromBody] Comentario comentario)
         {
-            await _repo.AddComentarioAsync(comentario);
+            await repo.AddComentarioAsync(comentario);
+
             return CreatedAtAction(nameof(GetEvento), new { id = comentario.EventoID });
         }
 

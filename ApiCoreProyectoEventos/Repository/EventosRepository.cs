@@ -6,6 +6,7 @@ using ApiCoreProyectoEventos.Models;
 using Newtonsoft.Json;
 using System.Diagnostics.Metrics;
 using System.Text.Json.Nodes;
+using ApiCoreProyectoEventos.Helpers;
 #region VISTAS Y PROCEDURES
 //ALTER VIEW VISTA_DETALLES_EVENTO AS
 //SELECT
@@ -42,6 +43,7 @@ namespace ApiCoreProyectoEventos.Repository
             this.context = context;
         }
 
+        #region Eventos
         public async Task<List<EventoDetalles>> GetAllEventosHoyAsync()
         {
             // Obtener la fecha de hoy
@@ -208,5 +210,173 @@ namespace ApiCoreProyectoEventos.Repository
 
             return await query.ToListAsync();
         }
+        #endregion
+
+        #region ArtistasEventos
+        public async Task AddArtistaToEvento(int idevento, int idartista)
+        {
+            var existeArtistaEnEvento = await this.context.ArtistasEvento
+                .AnyAsync(ae => ae.EventoID == idevento && ae.ArtistaID == idartista);
+
+            if (!existeArtistaEnEvento)
+            {
+                ArtistaEvento artistaEvento = new ArtistaEvento
+                {
+                    EventoID = idevento,
+                    ArtistaID = idartista
+                };
+                this.context.ArtistasEvento.Add(artistaEvento);
+                await this.context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<Artista>> GetArtistasTempAsync(int idevento)
+        {
+            return await context.Artistas
+                                 .Where(r => r.IdEvento == idevento)
+                                 .ToListAsync();
+        }
+        #endregion
+
+        #region Entradas
+        public async Task AsignarEntradasAsync(int idevento, int iduser, string nombre, string correo, string dni)
+        {
+            AsistenciaEvento nuevaEntrada = new AsistenciaEvento()
+            {
+                UsuarioID = iduser,
+                EventoID = idevento,
+                Nombre = nombre,
+                Correo = correo,
+                Dni = dni,
+                QR = ""
+            };
+            context.AsistenciasEventos.Add(nuevaEntrada);
+        }
+
+        public async Task<List<EntradaDetalles>> GetAllEntradasUsuarioAsync(int iduser)
+        {
+            var entradas = await this.context.EntradaDetalles
+                .Where(u => u.UsuarioID == iduser)
+                .ToListAsync();
+
+            return entradas;
+        }
+        #endregion
+
+        #region Provincias
+        public async Task<List<Provincia>> GetAllProvinciassAsync()
+        {
+            var provincias = await this.context.Provincias.ToListAsync();
+
+            return provincias;
+        }
+        #endregion
+
+        #region Usuarios
+        public async Task<List<ArtistaDetalles>> GetAllArtistasEventoAsync(int idevento)
+        {
+            var artistas = await this.context.ArtistasDetalles
+                .Where(a => a.EventoID == idevento)
+                .ToListAsync();
+
+            return artistas;
+        }
+
+
+        public async Task<List<UsuarioDetalles>> GetAllArtistas()
+        {
+            var artistas = await this.context.UsuariosDetalles
+                .Where(r => r.RolID == 2)
+                .ToListAsync();
+
+            return artistas;
+        }
+
+        public async Task UpdateUserAsync(Usuario usuario)
+        {
+            this.context.Usuarios.Update(usuario);
+            await this.context.SaveChangesAsync();
+        }
+
+
+        public async Task<UsuarioDetalles> GetUsuarioDetalles(int iduser)
+        {
+            return await this.context.UsuariosDetalles.FirstOrDefaultAsync(z => z.UsuarioID == iduser);
+        }
+
+        //---------------------- Registro / Login ----------------------//
+        public bool EmailExists(string email)
+        {
+            var consulta = from u in context.Usuarios
+                           where u.Correo == email
+                           select u;
+
+            return consulta.Any();
+        }
+
+        public async Task<Usuario> RegisterUserAsync(string nombre, string email
+             , string password, int rol)
+        {
+            Usuario user = new Usuario();
+            user.NombreUsuario = nombre;
+            user.Correo = email;
+            user.RolID = rol;
+            user.ProvinciaID = 1;
+            user.Telefono = "";
+            user.FotoPerfil = "default-user.png";
+            user.Descripcion = "";
+            user.Activo = false;
+            //CADA USUARIO TENDRA UN SALT DISTINTO 
+            user.Salt = HelperTools.GenerateSalt();
+            //GUARDAMOS EL PASSWORD EN BYTE[] 
+            user.Password =
+                HelperCryptography.EncryptPassword(password, user.Salt);
+            user.Activo = false;
+            user.TokenMail = HelperTools.GenerateTokenMail();
+
+            this.context.Usuarios.Add(user);
+            await this.context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task ActivateUserAsync(string token)
+        {
+            // Buscamos el usuario por su token
+            Usuario user = await this.context.Usuarios.FirstOrDefaultAsync(x => x.TokenMail == token);
+
+            user.Activo = true;
+
+            user.TokenMail = "";
+
+            await this.context.SaveChangesAsync();
+        }
+
+        public async Task<bool> LogInUserAsync(string correo, string password)
+        {
+            var usuario = await context.Usuarios.FirstOrDefaultAsync(u => u.Correo == correo);
+
+            if (usuario != null)
+            {
+                string salt = usuario.Salt;
+                byte[] temp = HelperCryptography.EncryptPassword(password, salt);
+                byte[] passUser = usuario.Password;
+                bool response = HelperTools.CompareArrays(temp, passUser);
+
+                return response;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public Usuario GetUser(string correo)
+        {
+            var usuario = (from u in context.Usuarios
+                           where u.Correo == correo
+                           select u).FirstOrDefault();
+
+            return usuario;
+        }
+        #endregion
     }
 }

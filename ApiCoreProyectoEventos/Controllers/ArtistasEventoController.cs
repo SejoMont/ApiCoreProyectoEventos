@@ -11,25 +11,21 @@ namespace ApiCoreProyectoEventos.Controllers
     [ApiController]
     public class ArtistasEventoController : ControllerBase
     {
-        private readonly ArtistasEventoRepository _repo;
-        private readonly EventosRepository _eventosRepository;
-        private readonly UsuariosRepository _usuariosRepository;
+        private readonly EventosRepository repo;
 
-        public ArtistasEventoController(ArtistasEventoRepository repo, EventosRepository eventosRepository, UsuariosRepository usuariosRepository)
+        public ArtistasEventoController(EventosRepository repo)
         {
-            _repo = repo;
-            _eventosRepository = eventosRepository;
-            _usuariosRepository = usuariosRepository;
+            this.repo = repo;
         }
 
         [HttpGet("GetArtistasByEvento/{idevento}")]
         public async Task<ActionResult<List<UsuarioDetalles>>> GetArtistasByEvento(int idevento)
         {
-            var evento = await _eventosRepository.GetDetallesEventoAsync(idevento);
+            var evento = await repo.GetDetallesEventoAsync(idevento);
             if (evento == null)
                 return NotFound("Evento no encontrado.");
 
-            var artistas = await _usuariosRepository.GetAllArtistas();
+            var artistas = await repo.GetAllArtistas();
             return Ok(artistas);
         }
 
@@ -38,7 +34,7 @@ namespace ApiCoreProyectoEventos.Controllers
         {
             try
             {
-                await _repo.AddArtistaToEvento(idevento, idartista);
+                await repo.AddArtistaToEvento(idevento, idartista);
                 return Ok("Artista agregado al evento correctamente.");
             }
             catch (Exception ex)

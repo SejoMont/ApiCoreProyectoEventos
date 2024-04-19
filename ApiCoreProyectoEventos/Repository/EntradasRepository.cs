@@ -33,27 +33,6 @@ namespace ApiCoreProyectoEventos.Repository
         {
             this.context = context;
         }
-        public async Task AsignarEntradasAsync(int idevento, int iduser, string nombre, string correo, string dni)
-        {
-            AsistenciaEvento nuevaEntrada = new AsistenciaEvento()
-            {
-                UsuarioID = iduser,
-                EventoID = idevento,
-                Nombre = nombre,
-                Correo = correo,
-                Dni = dni,
-                QR = ""
-            };
-            context.AsistenciasEventos.Add(nuevaEntrada);
-        }
-
-        public async Task<List<EntradaDetalles>> GetAllEntradasUsuarioAsync(int iduser)
-        {
-            var entradas = await this.context.EntradaDetalles
-                .Where(u => u.UsuarioID == iduser)
-                .ToListAsync();
-
-            return entradas;
-        }
+       
     }
 }

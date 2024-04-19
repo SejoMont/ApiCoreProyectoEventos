@@ -1,5 +1,6 @@
 ﻿using ApiCoreProyectoEventos.Models;
 using ApiCoreProyectoEventos.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +12,18 @@ namespace ApiCoreProyectoEventos.Controllers
     [ApiController]
     public class EntradasController : ControllerBase
     {
-        private readonly EntradasRepository _repo;
+        private readonly EventosRepository repo;
 
-        public EntradasController(EntradasRepository repo)
+        public EntradasController(EventosRepository repo)
         {
-            _repo = repo;
+            this.repo = repo;
         }
+
 
         [HttpGet("VerEntradas/{iduser}")]
         public async Task<ActionResult<List<EntradaDetalles>>> VerEntradas(int iduser)
         {
-            List<EntradaDetalles> entradasUsuario = await _repo.GetAllEntradasUsuarioAsync(iduser);
+            List<EntradaDetalles> entradasUsuario = await repo.GetAllEntradasUsuarioAsync(iduser);
             if (entradasUsuario == null || entradasUsuario.Count == 0)
             {
                 return NotFound("No se encontraron entradas para el usuario especificado.");

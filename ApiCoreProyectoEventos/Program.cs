@@ -20,6 +20,16 @@ builder.Services.AddTransient<UsuariosRepository>();
 builder.Services.AddTransient<ProvinciasRepository>();
 
 
+HelperActionServicesOAuth helper =
+    new HelperActionServicesOAuth(builder.Configuration);
+
+builder.Services.AddSingleton<HelperActionServicesOAuth>(helper);
+
+builder.Services.AddAuthentication
+    (helper.GetAuthenticateSchema())
+    .AddJwtBearer(helper.GetJwtBearerOptions());
+
+
 string connectionString =
     builder.Configuration.GetConnectionString("SqlAzure");
 
@@ -52,9 +62,9 @@ app.UseSwaggerUI(options =>
 //{
 
 //}
-
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

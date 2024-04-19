@@ -2,7 +2,11 @@
 using ApiCoreProyectoEventos.Models;
 using ApiCoreProyectoEventos.Repository;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace MvcCoreProyectoSejo.Controllers
@@ -11,23 +15,19 @@ namespace MvcCoreProyectoSejo.Controllers
     [ApiController]
     public class UsuariosApiController : ControllerBase
     {
-        private UsuariosRepository _repo;
-        private EventosRepository _eventosRepo;
-        private HelperMails _helperMails;
-        private HelperPathProvider _helperPathProvider;
+        private EventosRepository repo;
+        private HelperActionServicesOAuth helper;
 
-        public UsuariosApiController(UsuariosRepository repo, EventosRepository eventosRepo, HelperMails helperMails, HelperPathProvider helperPathProvider)
+        public UsuariosApiController(EventosRepository repo, HelperActionServicesOAuth helper)
         {
-            _repo = repo;
-            _eventosRepo = eventosRepo;
-            _helperMails = helperMails;
-            _helperPathProvider = helperPathProvider;
+            this.repo = repo;
+            this.helper = helper;
         }
 
         [HttpGet("Details/{iduser}")]
         public async Task<ActionResult<UsuarioDetalles>> Details(int iduser)
         {
-            UsuarioDetalles usuarioDetalles = await _repo.GetUsuarioDetalles(iduser);
+            UsuarioDetalles usuarioDetalles = await repo.GetUsuarioDetalles(iduser);
             if (usuarioDetalles == null)
                 return NotFound("Usuario no encontrado");
             return Ok(usuarioDetalles);
@@ -36,22 +36,52 @@ namespace MvcCoreProyectoSejo.Controllers
         [HttpPost("Login")]
         public async Task<ActionResult> Login(string correo, string password)
         {
-            bool loginSuccess = await _repo.LogInUserAsync(correo, password);
+            bool loginSuccess = await repo.LogInUserAsync(correo, password);
             if (loginSuccess)
             {
-                Usuario user = _repo.GetUser(correo);
-                return Ok(new { Message = "Login exitoso", UserId = user.UsuarioID });
+                SigningCredentials credentials =
+                    new SigningCredentials(
+                        this.helper.GetKeyToken()
+                        , SecurityAlgorithms.HmacSha256);
+
+
+                Usuario user = repo.GetUser(correo);
+
+                string jsonUser =
+                    JsonConvert.SerializeObject(user);
+
+                Claim[] informacion = new[]
+                {
+                    new Claim("UserData", jsonUser)
+                };
+
+                JwtSecurityToken token =
+                    new JwtSecurityToken(
+                        claims: informacion,
+                        issuer: this.helper.Issuer,
+                        audience: this.helper.Audience,
+                        signingCredentials: credentials,
+                        expires: DateTime.UtcNow.AddMinutes(30),
+                        notBefore: DateTime.UtcNow
+                        );
+                return Ok(
+                    new
+                    {
+                        response =
+                        new JwtSecurityTokenHandler()
+                        .WriteToken(token)
+                    });
             }
             else
             {
-                return BadRequest("Credenciales incorrectas");
+                return Unauthorized();
             }
         }
 
         [HttpPost("Registro")]
         public async Task<ActionResult> Registro(string nombre, string correo, string password, string confirmPassword)
         {
-            if (_repo.EmailExists(correo))
+            if (repo.EmailExists(correo))
             {
                 return BadRequest("El correo electrónico ya está en uso");
             }
@@ -61,7 +91,7 @@ namespace MvcCoreProyectoSejo.Controllers
                 return BadRequest("Las contraseñas no coinciden");
             }
 
-            Usuario user = await _repo.RegisterUserAsync(nombre, correo, password, 1);
+            Usuario user = await repo.RegisterUserAsync(nombre, correo, password, 1);
 
             if (user != null)
             {
@@ -90,7 +120,7 @@ namespace MvcCoreProyectoSejo.Controllers
         [HttpPut("Edit/{id}")]
         public async Task<ActionResult> Edit(int id, string nombre, string correo, string password)
         {
-            UsuarioDetalles existingUser = await _repo.GetUsuarioDetalles(id);
+            UsuarioDetalles existingUser = await repo.GetUsuarioDetalles(id);
             if (existingUser == null)
                 return NotFound("Usuario no encontrado");
 

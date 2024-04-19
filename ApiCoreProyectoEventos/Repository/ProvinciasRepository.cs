@@ -11,12 +11,7 @@ namespace ApiCoreProyectoEventos.Repository
         {
             this.context = context;
         }
-        public async Task<List<Provincia>> GetAllProvinciassAsync()
-        {
-            var provincias = await this.context.Provincias.ToListAsync();
-
-            return provincias;
-        }
+        
 
     }
 }
