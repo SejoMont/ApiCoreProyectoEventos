@@ -7,7 +7,6 @@ namespace ApiCoreProyectoEventos.Models
     public class Comentario
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("ComentarioID")]
         public int ComentarioID { get; set; }
 
@@ -26,12 +25,6 @@ namespace ApiCoreProyectoEventos.Models
 
         [Column("FechaCreacion")]
         public DateTime FechaCreacion { get; set; }
-
-        [ForeignKey("UsuarioID")]
-        public Usuario Usuario { get; set; }
-
-        [ForeignKey("EventoID")]
-        public Evento Evento { get; set; }
     }
 
 }

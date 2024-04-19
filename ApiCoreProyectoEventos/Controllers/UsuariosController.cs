@@ -13,12 +13,12 @@ namespace MvcCoreProyectoSejo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsuariosApiController : ControllerBase
+    public class UsuariosController : ControllerBase
     {
         private EventosRepository repo;
         private HelperActionServicesOAuth helper;
 
-        public UsuariosApiController(EventosRepository repo, HelperActionServicesOAuth helper)
+        public UsuariosController(EventosRepository repo, HelperActionServicesOAuth helper)
         {
             this.repo = repo;
             this.helper = helper;

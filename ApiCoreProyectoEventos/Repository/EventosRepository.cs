@@ -118,28 +118,6 @@ namespace ApiCoreProyectoEventos.Repository
             await context.SaveChangesAsync();
         }
 
-        public async Task RestarEntrada(int idevento)
-        {
-            // Obtener el evento por su ID
-
-            Evento evento = await this.context.Eventos.FirstOrDefaultAsync(e => e.EventoID == idevento);
-
-            // Verificar si se encontró el evento
-            if (evento != null)
-            {
-                // Restar una entrada
-                evento.EntradasVendidas++;
-
-                // Guardar los cambios en la base de datos
-                await context.SaveChangesAsync();
-            }
-            else
-            {
-                // Manejar el caso cuando el evento no se encuentra
-                throw new InvalidOperationException("El evento no existe.");
-            }
-        }
-
         public async Task BorrarEvento(int idevento)
         {
             // Buscar el evento por su ID
@@ -174,7 +152,7 @@ namespace ApiCoreProyectoEventos.Repository
         }
 
 
-        public async Task<List<EventoDetalles>> BuscarEventosPorFiltros(FiltroEvento filtro)
+        public async Task<List<EventoDetalles>> GetEventosPorFiltros(FiltroEvento filtro)
         {
             IQueryable<EventoDetalles> query = this.context.EventosDetalles;
 
@@ -239,18 +217,9 @@ namespace ApiCoreProyectoEventos.Repository
         #endregion
 
         #region Entradas
-        public async Task AsignarEntradasAsync(int idevento, int iduser, string nombre, string correo, string dni)
+        public async Task AsignarEntradasAsync(AsistenciaEvento entrada)
         {
-            AsistenciaEvento nuevaEntrada = new AsistenciaEvento()
-            {
-                UsuarioID = iduser,
-                EventoID = idevento,
-                Nombre = nombre,
-                Correo = correo,
-                Dni = dni,
-                QR = ""
-            };
-            context.AsistenciasEventos.Add(nuevaEntrada);
+            context.AsistenciasEventos.Add(entrada);
         }
 
         public async Task<List<EntradaDetalles>> GetAllEntradasUsuarioAsync(int iduser)
@@ -260,6 +229,28 @@ namespace ApiCoreProyectoEventos.Repository
                 .ToListAsync();
 
             return entradas;
+        }
+
+        public async Task RestarEntrada(int idevento)
+        {
+            // Obtener el evento por su ID
+
+            Evento evento = await this.context.Eventos.FirstOrDefaultAsync(e => e.EventoID == idevento);
+
+            // Verificar si se encontró el evento
+            if (evento != null)
+            {
+                // Restar una entrada
+                evento.EntradasVendidas++;
+
+                // Guardar los cambios en la base de datos
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                // Manejar el caso cuando el evento no se encuentra
+                throw new InvalidOperationException("El evento no existe.");
+            }
         }
         #endregion
 

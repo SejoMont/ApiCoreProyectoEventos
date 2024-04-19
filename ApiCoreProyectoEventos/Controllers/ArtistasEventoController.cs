@@ -18,14 +18,17 @@ namespace ApiCoreProyectoEventos.Controllers
             this.repo = repo;
         }
 
-        [HttpGet("GetArtistasByEvento/{idevento}")]
-        public async Task<ActionResult<List<UsuarioDetalles>>> GetArtistasByEvento(int idevento)
+        [HttpGet("[action]")]
+        public async Task<ActionResult<List<Artista>>> GetArtistasTempEvento(int idevento)
         {
-            var evento = await repo.GetDetallesEventoAsync(idevento);
-            if (evento == null)
-                return NotFound("Evento no encontrado.");
+            var artistas = await repo.GetArtistasTempAsync(idevento);
+            return Ok(artistas);
+        }
 
-            var artistas = await repo.GetAllArtistas();
+        [HttpGet("[action]")]
+        public async Task<ActionResult<List<ArtistaDetalles>>> GetArtistasEvento(int idevento)
+        {
+            var artistas = await repo.GetAllArtistasEventoAsync(idevento);
             return Ok(artistas);
         }
 

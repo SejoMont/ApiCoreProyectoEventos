@@ -31,5 +31,27 @@ namespace ApiCoreProyectoEventos.Controllers
 
             return Ok(entradasUsuario);
         }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AsignarEntrada([FromBody] AsistenciaEvento entrada)
+        {
+            await repo.AsignarEntradasAsync(entrada);
+            return Ok(entrada);
+        }
+
+        [HttpPost("RestarEntrada/{idevento}")]
+        public async Task<IActionResult> RestarEntrada(int idevento)
+        {
+            EventoDetalles evento = await repo.GetDetallesEventoAsync(idevento);
+            if (evento != null)
+            {
+                await this.repo.RestarEntrada(idevento);
+                return Ok();
+            }
+            else
+            {
+                return NotFound("El evento no existe.");
+            }
+        }
     }
 }
