@@ -21,7 +21,7 @@ namespace ApiCoreProyectoEventos.Controllers
 
 
         [HttpGet("VerEntradas/{iduser}")]
-        public async Task<ActionResult<List<EntradaDetalles>>> VerEntradas(int iduser)
+        public async Task<IActionResult> VerEntradas(int iduser)
         {
             List<EntradaDetalles> entradasUsuario = await repo.GetAllEntradasUsuarioAsync(iduser);
             if (entradasUsuario == null || entradasUsuario.Count == 0)
@@ -35,14 +35,14 @@ namespace ApiCoreProyectoEventos.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> AsignarEntrada([FromBody] AsistenciaEvento entrada)
         {
-            await repo.AsignarEntradasAsync(entrada);
+            await this.repo.AsignarEntradasAsync(entrada);
             return Ok(entrada);
         }
 
         [HttpPost("RestarEntrada/{idevento}")]
         public async Task<IActionResult> RestarEntrada(int idevento)
         {
-            EventoDetalles evento = await repo.GetDetallesEventoAsync(idevento);
+            EventoDetalles evento = await this.repo.GetDetallesEventoAsync(idevento);
             if (evento != null)
             {
                 await this.repo.RestarEntrada(idevento);

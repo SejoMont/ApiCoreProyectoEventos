@@ -220,6 +220,7 @@ namespace ApiCoreProyectoEventos.Repository
         public async Task AsignarEntradasAsync(AsistenciaEvento entrada)
         {
             context.AsistenciasEventos.Add(entrada);
+            await this.context.SaveChangesAsync();
         }
 
         public async Task<List<EntradaDetalles>> GetAllEntradasUsuarioAsync(int iduser)
@@ -229,6 +230,11 @@ namespace ApiCoreProyectoEventos.Repository
                 .ToListAsync();
 
             return entradas;
+        }
+        public async Task CrearArtistaAsync(Artista artista)
+        {
+            this.context.Artistas.Add(artista);
+            await this.context.SaveChangesAsync();
         }
 
         public async Task RestarEntrada(int idevento)
@@ -252,6 +258,7 @@ namespace ApiCoreProyectoEventos.Repository
                 throw new InvalidOperationException("El evento no existe.");
             }
         }
+
         #endregion
 
         #region Provincias
@@ -296,7 +303,7 @@ namespace ApiCoreProyectoEventos.Repository
         }
 
         //---------------------- Registro / Login ----------------------//
-        public bool EmailExists(string email)
+        public async Task<bool> EmailExists(string email)
         {
             var consulta = from u in context.Usuarios
                            where u.Correo == email

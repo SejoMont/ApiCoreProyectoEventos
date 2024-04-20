@@ -18,26 +18,34 @@ namespace ApiCoreProyectoEventos.Controllers
             this.repo = repo;
         }
 
+
         [HttpGet("[action]")]
         public async Task<ActionResult<List<Artista>>> GetArtistasTempEvento(int idevento)
         {
-            var artistas = await repo.GetArtistasTempAsync(idevento);
+            var artistas = await this.repo.GetArtistasTempAsync(idevento);
             return Ok(artistas);
         }
 
         [HttpGet("[action]")]
-        public async Task<ActionResult<List<ArtistaDetalles>>> GetArtistasEvento(int idevento)
+        public async Task<IActionResult> GetArtistasEvento(int idevento)
         {
-            var artistas = await repo.GetAllArtistasEventoAsync(idevento);
+            var artistas = await this.repo.GetAllArtistasEventoAsync(idevento);
+            return Ok(artistas);
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetAllArtistas()
+        {
+            var artistas = await this.repo.GetAllArtistas();
             return Ok(artistas);
         }
 
         [HttpPost("AddArtistaToEvento/{idevento}/{idartista}")]
-        public async Task<ActionResult> AddArtistaToEvento(int idevento, int idartista)
+        public async Task<ActionResult> AddArtistaEvento(int idevento, int idartista)
         {
             try
             {
-                await repo.AddArtistaToEvento(idevento, idartista);
+                await this.repo.AddArtistaToEvento(idevento, idartista);
                 return Ok("Artista agregado al evento correctamente.");
             }
             catch (Exception ex)
@@ -47,24 +55,16 @@ namespace ApiCoreProyectoEventos.Controllers
         }
 
         [HttpPost("CrearArtista")]
-        public async Task<ActionResult> CrearArtista([FromForm] Artista artista, IFormFile foto)
+        public async Task<ActionResult> CrearArtista([FromBody] Artista artista)
         {
-            // Lógica para manejar la carga del archivo y creación del artista
             try
             {
-                // Aquí se debe integrar la lógica para subir el archivo, por ejemplo
-                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", foto.FileName);
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await foto.CopyToAsync(stream);
-                }
-                artista.Foto = foto.FileName;
-
-                return Ok("Artista creado exitosamente.");
+                await this.repo.CrearArtistaAsync(artista);
+                return Ok("Artista agregado al evento correctamente.");
             }
             catch (Exception ex)
             {
-                return BadRequest("Error al crear el artista: " + ex.Message);
+                return BadRequest("Error al agregar el artista al evento: " + ex.Message);
             }
         }
     }

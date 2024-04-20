@@ -1,5 +1,6 @@
 ﻿using ApiCoreProyectoEventos.Models;
 using ApiCoreProyectoEventos.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace ApiCoreProyectoEventos.Controllers
             this.repo = repo;
         }
 
+        [Authorize]
         [HttpPost("[action]")]
         public async Task<IActionResult> AddComentario([FromBody] Comentario comentario)
         {

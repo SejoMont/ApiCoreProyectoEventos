@@ -39,6 +39,22 @@ namespace MvcCoreProyectoSejo.Controllers
         }
 
         [HttpGet("[action]")]
+        public async Task<IActionResult> GetAllEventosArtista(int iduser)
+        {
+            var eventos = await repo.GetAllEventosArtistaAsync(iduser);
+
+            return Ok(eventos);
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetEventosPorRecinto(int iduser)
+        {
+            var eventos = await repo.GetEventosPorRecintoAsync(iduser);
+
+            return Ok(eventos);
+        }
+
+        [HttpGet("[action]")]
         public async Task<IActionResult> GetEventosPorFiltros([FromQuery] FiltroEvento filtro)
         {
             var eventos = await repo.GetEventosPorFiltros(filtro);
@@ -64,6 +80,7 @@ namespace MvcCoreProyectoSejo.Controllers
             return Ok(evento);
         }
 
+        [Authorize]
         [HttpPost("CrearEvento")]
         public async Task<IActionResult> CrearEvento([FromBody] Evento evento)
         {

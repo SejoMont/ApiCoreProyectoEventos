@@ -33,6 +33,14 @@ namespace MvcCoreProyectoSejo.Controllers
             return Ok(user);
         }
 
+        [HttpGet("[action]")]
+        public async Task<ActionResult<Usuario>> EmailExists(string correo)
+        {
+            bool emailExist = await this.repo.EmailExists(correo);
+            if (!emailExist)
+                return NotFound("Usuario no encontrado");
+            return Ok(emailExist);
+        }
 
         [HttpGet("Details/{iduser}")]
         public async Task<ActionResult<UsuarioDetalles>> Details(int iduser)
@@ -91,7 +99,7 @@ namespace MvcCoreProyectoSejo.Controllers
         [HttpPost("Registro")]
         public async Task<ActionResult> Registro(Registro registro)
         {
-            if (repo.EmailExists(registro.Correo))
+            if (await repo.EmailExists(registro.Correo))
             {
                 return BadRequest("El correo electrónico ya está en uso");
             }
