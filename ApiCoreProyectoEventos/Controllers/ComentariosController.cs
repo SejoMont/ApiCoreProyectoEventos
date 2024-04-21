@@ -27,6 +27,15 @@ namespace ApiCoreProyectoEventos.Controllers
             return Ok(comentario);
         }
 
+        [Authorize]
+        [HttpDelete("[action]")]
+        public async Task<IActionResult> DeleteComentario(int idcoment)
+        {
+            await repo.DeleteComentarioAsync(idcoment);
+
+            return Ok();
+        }
+
         [HttpGet("[action]")]
         public async Task<IActionResult> GetComentariosEvento(int idevento)
         {

@@ -43,6 +43,33 @@ namespace ApiCoreProyectoEventos.Repository
             this.context = context;
         }
 
+        #region Comentarios
+        public async Task AddComentarioAsync(Comentario resena)
+        {
+            context.Comentarios.Add(resena);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteComentarioAsync(int idcoment)
+        {
+            var comentario = await context.Comentarios.FindAsync(idcoment);
+
+            if (comentario != null)
+            {
+                context.Comentarios.Remove(comentario);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<List<ComentarioDetalles>> GetComentariosByEventoIdAsync(int eventoId)
+        {
+            return await context.ComentariosDetalles
+                                 .Where(r => r.EventoID == eventoId)
+                                 .Include(r => r.Usuario)
+                                 .ToListAsync();
+        }
+        #endregion
+
         #region Eventos
         public async Task<List<EventoDetalles>> GetAllEventosHoyAsync()
         {
@@ -125,20 +152,6 @@ namespace ApiCoreProyectoEventos.Repository
 
             // Eliminar el evento de la base de datos
             this.context.Eventos.Remove(evento);
-        }
-
-        public async Task AddComentarioAsync(Comentario resena)
-        {
-            context.Comentarios.Add(resena);
-            await context.SaveChangesAsync();
-        }
-
-        public async Task<List<ComentarioDetalles>> GetComentariosByEventoIdAsync(int eventoId)
-        {
-            return await context.ComentariosDetalles
-                                 .Where(r => r.EventoID == eventoId)
-                                 .Include(r => r.Usuario)
-                                 .ToListAsync();
         }
 
         public async Task<IActionResult> BuscarArtistas(string term)
