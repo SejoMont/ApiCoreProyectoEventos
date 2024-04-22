@@ -135,19 +135,10 @@ namespace MvcCoreProyectoSejo.Controllers
         //    return Ok("Cuenta activada correctamente");
         //}
 
-        [HttpPut("Edit/{id}")]
-        public async Task<ActionResult> Edit(int id, string nombre, string correo, string password)
+        [HttpPut("[action]")]
+        public async Task<ActionResult> Edit(Usuario user)
         {
-            UsuarioDetalles existingUser = await repo.GetUsuarioDetalles(id);
-            if (existingUser == null)
-                return NotFound("Usuario no encontrado");
-
-            // Supongamos que queremos actualizar solo el nombre y el correo
-            existingUser.NombreUsuario = nombre;
-            existingUser.Correo = correo;
-
-            // Lógica de actualización del usuario
-            // Esto es un ejemplo, deberías tener métodos en el repositorio para manejar la actualización real en la base de datos
+            await this.repo.UpdateUserAsync(user);
 
             return Ok("Usuario actualizado correctamente");
         }

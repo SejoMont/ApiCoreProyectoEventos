@@ -1,5 +1,6 @@
 ﻿using ApiCoreProyectoEventos.Models;
 using ApiCoreProyectoEventos.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -66,6 +67,25 @@ namespace ApiCoreProyectoEventos.Controllers
             {
                 return BadRequest("Error al agregar el artista al evento: " + ex.Message);
             }
+        }
+
+        [Authorize]
+        [HttpDelete("[action]")]
+        public async Task<IActionResult> DeleteArtistaEvento(int idevento, int idartista)
+        {
+            await repo.DeleteArtistaEventoAsync(idevento, idartista);
+
+            return Ok();
+        }
+
+
+        [Authorize]
+        [HttpDelete("[action]")]
+        public async Task<IActionResult> DeleteArtistaTemp(int idevento, int idartista)
+        {
+            await repo.DeleteArtistaAsync(idevento, idartista);
+
+            return Ok();
         }
     }
 }

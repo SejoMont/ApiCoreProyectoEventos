@@ -49,7 +49,7 @@ namespace ApiCoreProyectoEventos.Helpers
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidateLifetime = true,
+                        ValidateLifetime = false,
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = this.Issuer,
                         ValidAudience = this.Audience,
