@@ -7,30 +7,6 @@ using Newtonsoft.Json;
 using System.Diagnostics.Metrics;
 using System.Text.Json.Nodes;
 using ApiCoreProyectoEventos.Helpers;
-#region VISTAS Y PROCEDURES
-//ALTER VIEW VISTA_DETALLES_EVENTO AS
-//SELECT
-//    E.EventoID,
-//  E.NombreEvento,
-//  TE.Tipo AS TipoEvento,
-//  E.Fecha,
-//  E.Ubicacion,
-//  P.NombreProvincia AS Provincia,
-//  P.ProvinciaID,
-//  E.Aforo,
-//  E.EntradasVendidas,
-//  E.Imagen,
-//  U.NombreUsuario AS Recinto,
-//  U.UsuarioID AS RecintoID,
-//  E.MayorDe18,
-//  E.Descripcion,
-//  E.Precio,
-//  E.LinkMapsProvincia
-//FROM Eventos E
-//JOIN TiposEventos TE ON E.TipoEventoID = TE.TipoEventoID
-//JOIN Provincias P ON E.Provincia = P.ProvinciaID
-//JOIN Usuarios U ON E.Recinto = U.UsuarioID;
-#endregion
 
 namespace ApiCoreProyectoEventos.Repository
 {

@@ -11,14 +11,11 @@ namespace ApiCoreProyectoEventos.Helpers
         public string Audience { get; set; }
         public string SecretKey { get; set; }
 
-        public HelperActionServicesOAuth(IConfiguration configuration)
+        public HelperActionServicesOAuth(string issuer, string audience, string secretKey)
         {
-            this.Issuer =
-                configuration.GetValue<string>("ApiOAuth:Issuer");
-            this.Audience =
-                configuration.GetValue<string>("ApiOAuth:Audience");
-            this.SecretKey =
-                configuration.GetValue<string>("ApiOAuth:SecretKey");
+            this.Issuer = issuer;
+            this.Audience = audience;
+            this.SecretKey = secretKey;
         }
 
         //Necesitamos un metodo para generar el token 
