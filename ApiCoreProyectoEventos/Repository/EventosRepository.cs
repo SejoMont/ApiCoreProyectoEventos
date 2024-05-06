@@ -61,7 +61,6 @@ namespace ApiCoreProyectoEventos.Repository
             return eventos;
         }
 
-
         public async Task<List<EventoDetalles>> GetAllEventosAsync()
         {
             var eventos = await this.context.EventosDetalles.ToListAsync();
@@ -182,19 +181,15 @@ namespace ApiCoreProyectoEventos.Repository
         #region ArtistasEventos
         public async Task AddArtistaToEvento(int idevento, int idartista)
         {
-            var existeArtistaEnEvento = await this.context.ArtistasEvento
-                .AnyAsync(ae => ae.EventoID == idevento && ae.ArtistaID == idartista);
 
-            if (!existeArtistaEnEvento)
+            ArtistaEvento artistaEvento = new ArtistaEvento
             {
-                ArtistaEvento artistaEvento = new ArtistaEvento
-                {
-                    EventoID = idevento,
-                    ArtistaID = idartista
-                };
-                this.context.ArtistasEvento.Add(artistaEvento);
-                await this.context.SaveChangesAsync();
-            }
+                EventoID = idevento,
+                ArtistaID = idartista
+            };
+            this.context.ArtistasEvento.Add(artistaEvento);
+            await this.context.SaveChangesAsync();
+
         }
 
         public async Task<List<Artista>> GetArtistasTempAsync(int idevento)
@@ -202,6 +197,24 @@ namespace ApiCoreProyectoEventos.Repository
             return await context.Artistas
                                  .Where(r => r.IdEvento == idevento)
                                  .ToListAsync();
+        }
+
+        public async Task DeleteArtistaEventoAsync(int idevento, int idartista)
+        {
+            ArtistaEvento artistaEvento = await this.context.ArtistasEvento
+                .FirstOrDefaultAsync(ae => ae.EventoID == idevento && ae.ArtistaID == idartista);
+
+            this.context.ArtistasEvento.Remove(artistaEvento);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteArtistaAsync(int idevento, int idartista)
+        {
+            Artista artista = await this.context.Artistas
+                .FirstOrDefaultAsync(ae => ae.IdEvento == idevento && ae.IdArtista == idartista);
+
+            this.context.Artistas.Remove(artista);
+            await context.SaveChangesAsync();
         }
         #endregion
 
@@ -267,6 +280,28 @@ namespace ApiCoreProyectoEventos.Repository
                 .ToListAsync();
 
             return artistas;
+        }
+
+        public async Task<Usuario> EditUser(Usuario user)
+        {
+            // Asegúrate de que el usuario existe en la base de datos
+            var existingUser = await this.context.Usuarios.FindAsync(user.UsuarioID);
+            if (existingUser != null)
+            {
+                // Actualiza las propiedades del usuario existente
+                this.context.Entry(existingUser).CurrentValues.SetValues(user);
+
+                // Guarda los cambios en la base de datos
+                await this.context.SaveChangesAsync();
+
+                return existingUser; // Retorna el usuario actualizado
+            }
+            else
+            {
+                // Opcionalmente, maneja la situación en que el usuario no se encuentra
+                // Por ejemplo, podrías lanzar una excepción o retornar null
+                throw new Exception("Usuario no encontrado");
+            }
         }
 
 
